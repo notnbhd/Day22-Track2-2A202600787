@@ -21,6 +21,7 @@ os.environ["LANGCHAIN_ENDPOINT"]   = os.getenv("LANGCHAIN_ENDPOINT", "https://ap
 # ── Provider mặc định ─────────────────────────────────────────────────────
 # Đổi giá trị PROVIDER trong .env: openai | gemini | anthropic | ollama | openrouter
 PROVIDER = os.getenv("PROVIDER", "openai").lower()
+EMBEDDING_PROVIDER = os.getenv("EMBEDDING_PROVIDER", PROVIDER).lower()
 
 # ── OpenAI ────────────────────────────────────────────────────────────────
 OPENAI_API_KEY         = os.getenv("OPENAI_API_KEY", "")
@@ -31,7 +32,7 @@ OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-s
 # ── Google Gemini ─────────────────────────────────────────────────────────
 GOOGLE_API_KEY          = os.getenv("GOOGLE_API_KEY", "")
 GEMINI_MODEL            = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
-GEMINI_EMBEDDING_MODEL  = os.getenv("GEMINI_EMBEDDING_MODEL", "models/embedding-001")
+GEMINI_EMBEDDING_MODEL  = os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001")
 
 # ── Anthropic ─────────────────────────────────────────────────────────────
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
@@ -46,6 +47,21 @@ OLLAMA_EMBEDDING_MODEL  = os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text"
 OPENROUTER_API_KEY  = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_MODEL    = os.getenv("OPENROUTER_MODEL", "openai/gpt-4o-mini")
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+OPENROUTER_EMBEDDING_MODEL = os.getenv("OPENROUTER_EMBEDDING_MODEL", "nvidia/llama-nemotron-embed-vl-1b-v2:free")
+# ── DeepSeek ───────────────────────────────────────────────────────────────
+DEEPSEEK_API_KEY  = os.getenv("DEEPSEEK_API_KEY", "")
+DEEPSEEK_MODEL    = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
+DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+DEEPSEEK_JUDGE_MODEL = os.getenv("DEEPSEEK_JUDGE_MODEL", "deepseek-v4-flash")
+
+# ── Cohere ───────────────────────────────────────────────────────────────────
+COHERE_API_KEY       = os.getenv("COHERE_API_KEY", "")
+COHERE_MODEL         = os.getenv("COHERE_MODEL", "command-r-08-2024")
+COHERE_EMBEDDING_MODEL = os.getenv("COHERE_EMBEDDING_MODEL", "embed-multilingual-light-v3.0")
+
+# ── Local Embeddings (HuggingFace, chạy offline) ──────────────────────────────
+LOCAL_EMBEDDING_MODEL = os.getenv("LOCAL_EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+
 
 # ── LangSmith ─────────────────────────────────────────────────────────────
 LANGSMITH_API_KEY = os.getenv("LANGCHAIN_API_KEY", "")
@@ -70,6 +86,10 @@ def validate() -> bool:
         missing.append("ANTHROPIC_API_KEY")
     elif PROVIDER == "openrouter" and not OPENROUTER_API_KEY:
         missing.append("OPENROUTER_API_KEY")
+    elif PROVIDER == "deepseek" and not DEEPSEEK_API_KEY:
+        missing.append("DEEPSEEK_API_KEY")
+    elif PROVIDER == "cohere" and not COHERE_API_KEY:
+        missing.append("COHERE_API_KEY")
     # Ollama: không cần API key
 
     if missing:

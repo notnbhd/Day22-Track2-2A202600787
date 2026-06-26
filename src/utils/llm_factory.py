@@ -79,10 +79,27 @@ def get_llm(provider: str = None, temperature: float = 0.0):
             temperature=temperature,
         )
 
+    elif provider == "deepseek":
+        from langchain_openai import ChatOpenAI
+        return ChatOpenAI(
+            model=config.DEEPSEEK_MODEL,
+            api_key=config.DEEPSEEK_API_KEY,
+            base_url=config.DEEPSEEK_BASE_URL,
+            temperature=temperature,
+        )
+
+    elif provider == "cohere":
+        from langchain_cohere import ChatCohere
+        return ChatCohere(
+            model=config.COHERE_MODEL,
+            cohere_api_key=config.COHERE_API_KEY,
+            temperature=temperature,
+        )
+
     else:
         raise ValueError(
             f"Provider không hợp lệ: '{provider}'. "
-            "Chọn một trong: openai, gemini, anthropic, ollama, openrouter"
+            "Chọn một trong: openai, gemini, anthropic, ollama, openrouter, deepseek, cohere"
         )
 
 
@@ -103,9 +120,9 @@ def get_embeddings(provider: str = None):
     Returns:
         Embeddings instance sẵn sàng sử dụng
     """
-    provider = (provider or config.PROVIDER).lower()
+    provider = (provider or config.EMBEDDING_PROVIDER).lower()
 
-    if provider in ("openai", "openrouter"):
+    if provider == "openai":
         from langchain_openai import OpenAIEmbeddings
         kwargs = {
             "model": config.OPENAI_EMBEDDING_MODEL,
@@ -115,11 +132,22 @@ def get_embeddings(provider: str = None):
             kwargs["base_url"] = config.OPENAI_BASE_URL
         return OpenAIEmbeddings(**kwargs)
 
+    elif provider == "openrouter":
+        from langchain_openai import OpenAIEmbeddings
+        return OpenAIEmbeddings(
+            model=config.OPENROUTER_EMBEDDING_MODEL,
+            api_key=config.OPENROUTER_API_KEY,
+            base_url=config.OPENROUTER_BASE_URL,
+            check_embedding_ctx_length=False,
+            chunk_size=1,  # OpenRouter không hỗ trợ batch input
+        )
+
     elif provider == "gemini":
         from langchain_google_genai import GoogleGenerativeAIEmbeddings
         return GoogleGenerativeAIEmbeddings(
             model=config.GEMINI_EMBEDDING_MODEL,
             google_api_key=config.GOOGLE_API_KEY,
+            api_version="v1",
         )
 
     elif provider == "anthropic":
@@ -138,8 +166,22 @@ def get_embeddings(provider: str = None):
             base_url=config.OLLAMA_BASE_URL,
         )
 
+    elif provider == "deepseek":
+        # DeepSeek không có Embeddings API → dùng local HuggingFace embeddings
+        from langchain_huggingface import HuggingFaceEmbeddings
+        return HuggingFaceEmbeddings(
+            model_name=config.LOCAL_EMBEDDING_MODEL,
+        )
+
+    elif provider == "cohere":
+        from langchain_cohere import CohereEmbeddings
+        return CohereEmbeddings(
+            model=config.COHERE_EMBEDDING_MODEL,
+            cohere_api_key=config.COHERE_API_KEY,
+        )
+
     else:
         raise ValueError(
             f"Provider không hợp lệ: '{provider}'. "
-            "Chọn một trong: openai, gemini, anthropic, ollama, openrouter"
+            "Chọn một trong: openai, gemini, anthropic, ollama, openrouter, deepseek, cohere"
         )
